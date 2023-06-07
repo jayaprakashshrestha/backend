@@ -1,43 +1,57 @@
 package com.library.project.Controllers;
 
-import java.util.List;
 
-import org.springframework.stereotype.Controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.library.project.Modals.Book;
-import com.library.project.Services.BookServics;
+import com.library.project.Modals.DataModal;
+import com.library.project.Repository.BookRepository;
+
 
 @RestController
+@RequestMapping("/api/books")
 public class BookController {
-    private BookServics service;
+    @Autowired
+    BookRepository bookRepo;
 
-    public BookController(BookServics service) {
-        this.service = service;
-    }
+   
+    
     @GetMapping("/Book")
-    public List<Book> getAllBook(){
-        return service.getAllBook();
+    public DataModal getAllBook(){
+        return new DataModal(200,"Book get successfully",bookRepo.findAll());
+        
 
     }
     @PostMapping("/addBook")
-    public void addBook(@RequestBody Book book){
-        service.addBook(book);
+    public DataModal addBook(@RequestBody Book book){
+        book=bookRepo.save(book);
+        return new DataModal(200,"book added successfully" , book);
     }
-    @PutMapping("/Books/{title}")
-    public void updateBook(@PathVariable String title, @RequestBody Book book) {
-        // Assuming 'title' represents the book ID, you can update the other properties of the 'book' object.
-        service.updateBook(book);
+    @PostMapping("/updateBook")
+    public DataModal updateBook(@RequestBody Book book) {
+        bookRepo.save(book);
+        return new DataModal(200, "book updated successfuly", book);
     }
     
-    @DeleteMapping("/Book/{title}")
-    public void deleteBook(@PathVariable String title){
-        service.deleteBook(title);
+    @DeleteMapping("/{id}")
+    public DataModal deleteBookByTitle(@PathVariable String id) {
+        // Book book = bookRepo.findById(id);
+
+        // if (book == null) {
+        //     return new DataModal(404, "Book not found", null);
+        // }
+
+        bookRepo.deleteById(id);
+
+        return new DataModal(200, "Book deleted successfully", id);
     }
 }
